@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cubik's STEAM Jr. — 3D Interactive 3x3 Cube</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at center, #132238 0%, #070d17 100%);
+      color: #f0f6fc;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      user-select: none;
+    }
+    body.chroma-green {
+      background: #00b140 !important;
+    }
+    #canvas-container {
+      width: 100%;
+      height: 100%;
+    }
+    /* Move HUD Badge */
+    #hud-move {
+      position: fixed;
+      top: 24px;
+      left: 28px;
+      background: rgba(13, 25, 43, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      border-radius: 12px;
+      padding: 14px 22px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+    #hud-label {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #38bdf8;
+      margin-bottom: 4px;
+    }
+    #current-move {
+      font-size: 32px;
+      font-weight: 700;
+      color: #ffffff;
+      min-height: 40px;
+    }
+    #move-history {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 4px;
+      max-width: 280px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    /* Control Panel */
+    #controls {
+      position: fixed;
+      top: 24px;
+      right: 28px;
+      background: rgba(13, 25, 43, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      border-radius: 12px;
+      padding: 16px;
+      width: 250px;
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    button {
+      background: #1e3a5f;
+      color: #f8fafc;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    button:hover { background: #284d7d; }
+    button:active { transform: scale(0.97); }
+    button.accent { background: #0284c7; border-color: #38bdf8; }
+    button.accent:hover { background: #0369a1; }
+    .face-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .legend {
+      font-size: 12px;
+      line-height: 1.5;
+      color: #cbd5e1;
+      border-top: 1px solid rgba(148, 163, 184, 0.25);
+      padding-top: 8px;
+    }
+    .legend kbd {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: monospace;
+      color: #38bdf8;
+    }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="hud-move">
+    <div id="hud-label">Cubik's STEAM Jr. • Active Move</div>
+    <div id="current-move">SOLVED</div>
+    <div id="move-history">Ready for instructions</div>
+  </div>
+
+  <div id="controls">
+    <div class="btn-row">
+      <button class="accent" id="btn-scramble">Scramble (S)</button>
+      <button id="btn-reset">Reset (Esc)</button>
+    </div>
+    <button id="btn-chroma">Toggle Chroma Green</button>
+
+    <div class="face-grid">
+      <button data-move="U">U</button>
+      <button data-move="R">R</button>
+      <button data-move="F">F</button>
+      <button data-move="U'">U'</button>
+      <button data-move="R'">R'</button>
+      <button data-move="F'">F'</button>
+      <button data-move="D">D</button>
+      <button data-move="L">L</button>
+      <button data-move="B">B</button>
+      <button data-move="D'">D'</button>
+      <button data-move="L'">L'</button>
+      <button data-move="B'">B'</button>
+    </div>
+
+    <div class="legend">
+      <strong>Controls:</strong><br/>
+      • <strong>Drag:</strong> Rotate 360° view<br/>
+      • <kbd>U</kbd> <kbd>D</kbd> <kbd>L</kbd> <kbd>R</kbd> <kbd>F</kbd> <kbd>B</kbd>: Clockwise<br/>
+      • <kbd>Shift</kbd> + Key: Counter-clockwise (')<br/>
+      • <kbd>S</kbd>: Scramble  |  <kbd>Esc</kbd>: Reset
+    </div>
+  </div>
+
+  <div id="canvas-container"></div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    // Scene, Camera, Renderer
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(5.2, 4.4, 6.2);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    // Lighting
+    scene.add(new THREE.AmbientLight(0xffffff, 1.1));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    keyLight.position.set(8, 12, 10);
+    scene.add(keyLight);
+    const fillLight = new THREE.DirectionalLight(0x88ccff, 0.7);
+    fillLight.position.set(-8, -6, -8);
+    scene.add(fillLight);
+
+    // OrbitControls for 360 mouse viewing
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.07;
+    controls.minDistance = 4;
+    controls.maxDistance = 16;
+
+    // Standard Rubik's Cube Colors (+X, -X, +Y, -Y, +Z, -Z)
+    const FACE_COLORS = {
+      px: 0xd92626, // Right: Red
+      nx: 0xf97316, // Left: Orange
+      py: 0xf8fafc, // Up: White
+      ny: 0xfacc15, // Down: Yellow
+      pz: 0x16a34a, // Front: Green
+      nz: 0x2563eb, // Back: Blue
+      core: 0x111317 // Black plastic interior
+    };
+
+    let cubies = [];
+    const cubeGroup = new THREE.Group();
+    scene.add(cubeGroup);
+
+    function createStickerTexture(hexColor) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 256;
+      canvas.height = 256;
+      const ctx = canvas.getContext('2d');
+
+      // Black plastic border
+      ctx.fillStyle = '#111317';
+      ctx.fillRect(0, 0, 256, 256);
+
+      // Rounded colored tile
+      const pad = 18;
+      const size = 256 - pad * 2;
+      const r = 26;
+      ctx.fillStyle = '#' + hexColor.toString(16).padStart(6, '0');
+      ctx.beginPath();
+      ctx.roundRect(pad, pad, size, size, r);
+      ctx.fill();
+
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
+    }
+
+    const materialCache = {};
+    function getFaceMaterial(hex) {
+      if (!materialCache[hex]) {
+        materialCache[hex] = new THREE.MeshStandardMaterial({
+          map: createStickerTexture(hex),
+          roughness: 0.28,
+          metalness: 0.05
+        });
+      }
+      return materialCache[hex];
+    }
+
+    const coreMaterial = new THREE.MeshStandardMaterial({
+      color: FACE_COLORS.core,
+      roughness: 0.5
+    });
+
+    function buildCube() {
+      // Clear existing cubies
+      while (cubeGroup.children.length > 0) {
+        cubeGroup.remove(cubeGroup.children[0]);
+      }
+      cubies = [];
+
+      const geometry = new THREE.BoxGeometry(0.97, 0.97, 0.97);
+
+      for (let x = -1; x <= 1; x++) {
+        for (let y = -1; y <= 1; y++) {
+          for (let z = -1; z <= 1; z++) {
+            const materials = [
+              x === 1 ? getFaceMaterial(FACE_COLORS.px) : coreMaterial,
+              x === -1 ? getFaceMaterial(FACE_COLORS.nx) : coreMaterial,
+              y === 1 ? getFaceMaterial(FACE_COLORS.py) : coreMaterial,
+              y === -1 ? getFaceMaterial(FACE_COLORS.ny) : coreMaterial,
+              z === 1 ? getFaceMaterial(FACE_COLORS.pz) : coreMaterial,
+              z === -1 ? getFaceMaterial(FACE_COLORS.nz) : coreMaterial
+            ];
+
+            const mesh = new THREE.Mesh(geometry, materials);
+            mesh.position.set(x, y, z);
+            cubeGroup.add(mesh);
+            cubies.push(mesh);
+          }
+        }
+      }
+    }
+
+    buildCube();
+
+    // Move Definitions
+    const MOVES = {
+      U:  { axis: 'y', layer:  1, angle: -Math.PI / 2 },
+      "U'":{ axis: 'y', layer:  1, angle:  Math.PI / 2 },
+      D:  { axis: 'y', layer: -1, angle:  Math.PI / 2 },
+      "D'":{ axis: 'y', layer: -1, angle: -Math.PI / 2 },
+      R:  { axis: 'x', layer:  1, angle: -Math.PI / 2 },
+      "R'":{ axis: 'x', layer:  1, angle:  Math.PI / 2 },
+      L:  { axis: 'x', layer: -1, angle:  Math.PI / 2 },
+      "L'":{ axis: 'x', layer: -1, angle: -Math.PI / 2 },
+      F:  { axis: 'z', layer:  1, angle: -Math.PI / 2 },
+      "F'":{ axis: 'z', layer:  1, angle:  Math.PI / 2 },
+      B:  { axis: 'z', layer: -1, angle:  Math.PI / 2 },
+      "B'":{ axis: 'z', layer: -1, angle: -Math.PI / 2 }
+    };
+
+    const moveQueue = [];
+    let isAnimating = false;
+    const historyList = [];
+    const currentMoveEl = document.getElementById('current-move');
+    const historyEl = document.getElementById('move-history');
+
+    function updateHUD(label) {
+      currentMoveEl.textContent = label;
+      historyList.push(label);
+      if (historyList.length > 14) historyList.shift();
+      historyEl.textContent = historyList.join(' ');
+    }
+
+    function enqueueMove(notation, customDuration = 220) {
+      if (!MOVES[notation]) return;
+      moveQueue.push({ notation, duration: customDuration });
+      processQueue();
+    }
+
+    function processQueue() {
+      if (isAnimating || moveQueue.length === 0) return;
+      isAnimating = true;
+
+      const { notation, duration } = moveQueue.shift();
+      const { axis, layer, angle } = MOVES[notation];
+      updateHUD(notation);
+
+      const pivot = new THREE.Group();
+      cubeGroup.add(pivot);
+
+      const activeCubies = cubies.filter(c => Math.round(c.position[axis]) === layer);
+      activeCubies.forEach(c => pivot.attach(c));
+
+      const startTime = performance.now();
+
+      function animateTurn(now) {
+        const elapsed = now - startTime;
+        const t = Math.min(elapsed / duration, 1);
+        // Smooth cubic ease-out
+        const eased = 1 - Math.pow(1 - t, 3);
+        pivot.rotation[axis] = angle * eased;
+
+        if (t < 1) {
+          requestAnimationFrame(animateTurn);
+        } else {
+          pivot.rotation[axis] = angle;
+          pivot.updateMatrixWorld();
+
+          activeCubies.forEach(c => {
+            cubeGroup.attach(c);
+            c.position.set(
+              Math.round(c.position.x),
+              Math.round(c.position.y),
+              Math.round(c.position.z)
+            );
+            // Snap rotation to nearest 90 degrees to avoid float drift
+            const step = Math.PI / 2;
+            c.rotation.set(
+              Math.round(c.rotation.x / step) * step,
+              Math.round(c.rotation.y / step) * step,
+              Math.round(c.rotation.z / step) * step
+            );
+            c.updateMatrix();
+          });
+
+          cubeGroup.remove(pivot);
+          isAnimating = false;
+          processQueue();
+        }
+      }
+
+      requestAnimationFrame(animateTurn);
+    }
+
+    function scrambleCube() {
+      const keys = Object.keys(MOVES);
+      for (let i = 0; i < 18; i++) {
+        const rand = keys[Math.floor(Math.random() * keys.length)];
+        enqueueMove(rand, 90);
+      }
+    }
+
+    function resetCube() {
+      moveQueue.length = 0;
+      isAnimating = false;
+      historyList.length = 0;
+      currentMoveEl.textContent = 'SOLVED';
+      historyEl.textContent = 'Cube reset';
+      buildCube();
+    }
+
+    // Keyboard Bindings
+    window.addEventListener('keydown', (e) => {
+      const key = e.key.toUpperCase();
+      if (['U', 'D', 'L', 'R', 'F', 'B'].includes(key)) {
+        const notation = e.shiftKey ? `${key}'` : key;
+        enqueueMove(notation);
+      } else if (key === 'S') {
+        scrambleCube();
+      } else if (e.key === 'Escape') {
+        resetCube();
+      }
+    });
+
+    // UI Buttons
+    document.querySelectorAll('[data-move]').forEach(btn => {
+      btn.addEventListener('click', () => enqueueMove(btn.dataset.move));
+    });
+    document.getElementById('btn-scramble').addEventListener('click', scrambleCube);
+    document.getElementById('btn-reset').addEventListener('click', resetCube);
+    document.getElementById('btn-chroma').addEventListener('click', () => {
+      document.body.classList.toggle('chroma-green');
+    });
+
+    // Resize Handler
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Render Loop
+    function render() {
+      requestAnimationFrame(render);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    render();
+  </script>
+</body>
+</html>
