@@ -42,16 +42,16 @@
       margin-bottom: 4px;
     }
     #current-move {
-      font-size: 30px;
+      font-size: 28px;
       font-weight: 700;
       color: #ffffff;
-      min-height: 38px;
+      min-height: 36px;
     }
     #move-history {
       font-size: 13px;
       color: #94a3b8;
       margin-top: 4px;
-      max-width: 310px;
+      max-width: 320px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -59,18 +59,18 @@
     /* Control Panel */
     #controls {
       position: fixed;
-      top: 24px;
-      right: 28px;
-      background: rgba(13, 25, 43, 0.85);
+      top: 20px;
+      right: 24px;
+      background: rgba(13, 25, 43, 0.88);
       border: 1px solid rgba(56, 189, 248, 0.45);
       border-radius: 12px;
-      padding: 16px;
-      width: 285px;
+      padding: 14px;
+      width: 325px;
       backdrop-filter: blur(8px);
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      max-height: calc(100vh - 48px);
+      gap: 8px;
+      max-height: calc(100vh - 40px);
       overflow-y: auto;
     }
     .btn-row {
@@ -78,18 +78,13 @@
       grid-template-columns: 1fr 1fr;
       gap: 8px;
     }
-    .col-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-    }
     button {
       background: #1e3a5f;
       color: #f8fafc;
       border: 1px solid rgba(56, 189, 248, 0.4);
-      border-radius: 8px;
-      padding: 7px 8px;
-      font-size: 12px;
+      border-radius: 7px;
+      padding: 6px 6px;
+      font-size: 11.5px;
       font-weight: 600;
       cursor: pointer;
       transition: background 0.15s, transform 0.1s;
@@ -98,29 +93,37 @@
     button:active { transform: scale(0.97); }
     button.accent { background: #0284c7; border-color: #38bdf8; }
     button.accent:hover { background: #0369a1; }
-    button.active-col {
-      background: #0ea5e9;
-      border-color: #e0f2fe;
-      color: #061322;
+    button.prime-btn {
+      background: #172e4d;
+      border-color: rgba(125, 211, 252, 0.35);
+      color: #bae6fd;
+    }
+    button.prime-btn:hover { background: #22416b; }
+    .slice-section {
+      border-top: 1px solid rgba(148, 163, 184, 0.22);
+      padding-top: 7px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
     }
     .section-title {
       font-size: 11px;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 0.9px;
       color: #7dd3fc;
-      margin-top: 2px;
     }
-    .face-grid {
+    .move-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 5px;
     }
     .legend {
-      font-size: 11.5px;
-      line-height: 1.5;
+      font-size: 11px;
+      line-height: 1.45;
       color: #cbd5e1;
       border-top: 1px solid rgba(148, 163, 184, 0.25);
-      padding-top: 8px;
+      padding-top: 7px;
     }
     .legend kbd {
       background: #0f172a;
@@ -154,45 +157,100 @@
     </div>
     <button id="btn-chroma">Toggle Chroma Green</button>
 
-    <div class="section-title">Up / Down Column Selector (Keys 1, 2, 3)</div>
-    <div class="col-row">
-      <button class="col-btn" data-col="-1">Col 1 (L)</button>
-      <button class="col-btn" data-col="0">Col 2 (M)</button>
-      <button class="col-btn active-col" data-col="1">Col 3 (R)</button>
+    <!-- ROW 1 -->
+    <div class="slice-section">
+      <div class="section-title">Row 1 (Top Row)</div>
+      <div class="move-grid">
+        <button data-axis="y" data-layer="1" data-angle="-1.5708" data-label="Row 1: R (Right)">R (Right)</button>
+        <button data-axis="y" data-layer="1" data-angle="1.5708" data-label="Row 1: L (Left)">L (Left)</button>
+
+        <button data-axis="z" data-layer="1" data-angle="-1.5708" data-label="Row 1: F (Front)">F (Front)</button>
+        <button class="prime-btn" data-axis="z" data-layer="1" data-angle="1.5708" data-label="Row 1: F' (Front')">F' (Front')</button>
+
+        <button data-axis="z" data-layer="-1" data-angle="-1.5708" data-label="Row 1: B (Back)">B (Back)</button>
+        <button class="prime-btn" data-axis="z" data-layer="-1" data-angle="1.5708" data-label="Row 1: B' (Back')">B' (Back')</button>
+      </div>
     </div>
 
-    <div class="section-title">Default Turns</div>
-    <div class="face-grid">
-      <button data-move="U">U (Up)</button>
-      <button data-move="D">D (Down)</button>
-      <button data-move="T">T (Top Row)</button>
-      <button data-move="Bo">Bo (Row 3)</button>
-      <button data-move="F">F (Front)</button>
-      <button data-move="B">B (Back)</button>
-      <button data-move="R">R (Right)</button>
-      <button data-move="L">L (Left Back)</button>
-      <button data-move="M">M (Mid Back)</button>
+    <!-- ROW 2 -->
+    <div class="slice-section">
+      <div class="section-title">Row 2 (Middle Row)</div>
+      <div class="move-grid">
+        <button data-axis="y" data-layer="0" data-angle="-1.5708" data-label="Row 2: R (Right)">R (Right)</button>
+        <button data-axis="y" data-layer="0" data-angle="1.5708" data-label="Row 2: L (Left)">L (Left)</button>
+
+        <button data-axis="z" data-layer="1" data-angle="-1.5708" data-label="Row 2: F (Front)">F (Front)</button>
+        <button class="prime-btn" data-axis="z" data-layer="1" data-angle="1.5708" data-label="Row 2: F' (Front')">F' (Front')</button>
+
+        <button data-axis="z" data-layer="-1" data-angle="-1.5708" data-label="Row 2: B (Back)">B (Back)</button>
+        <button class="prime-btn" data-axis="z" data-layer="-1" data-angle="1.5708" data-label="Row 2: B' (Back')">B' (Back')</button>
+      </div>
     </div>
 
-    <div class="section-title">Reverse Turns (Prime ')</div>
-    <div class="face-grid">
-      <button data-move="U'">U'</button>
-      <button data-move="D'">D'</button>
-      <button data-move="T'">T'</button>
-      <button data-move="Bo'">Bo'</button>
-      <button data-move="F'">F'</button>
-      <button data-move="B'">B'</button>
-      <button data-move="R'">R'</button>
-      <button data-move="L'">L'</button>
-      <button data-move="M'">M'</button>
+    <!-- ROW 3 -->
+    <div class="slice-section">
+      <div class="section-title">Row 3 (Bottom Row)</div>
+      <div class="move-grid">
+        <button data-axis="y" data-layer="-1" data-angle="-1.5708" data-label="Row 3: R (Right)">R (Right)</button>
+        <button data-axis="y" data-layer="-1" data-angle="1.5708" data-label="Row 3: L (Left)">L (Left)</button>
+
+        <button data-axis="z" data-layer="1" data-angle="-1.5708" data-label="Row 3: F (Front)">F (Front)</button>
+        <button class="prime-btn" data-axis="z" data-layer="1" data-angle="1.5708" data-label="Row 3: F' (Front')">F' (Front')</button>
+
+        <button data-axis="z" data-layer="-1" data-angle="-1.5708" data-label="Row 3: B (Back)">B (Back)</button>
+        <button class="prime-btn" data-axis="z" data-layer="-1" data-angle="1.5708" data-label="Row 3: B' (Back')">B' (Back')</button>
+      </div>
+    </div>
+
+    <!-- COLUMN 1 -->
+    <div class="slice-section">
+      <div class="section-title">Column 1 (Left Column)</div>
+      <div class="move-grid">
+        <button data-axis="x" data-layer="-1" data-angle="-1.5708" data-label="Col 1: U (Up)">U (Up)</button>
+        <button data-axis="x" data-layer="-1" data-angle="1.5708" data-label="Col 1: D (Down)">D (Down)</button>
+
+        <button data-axis="z" data-layer="1" data-angle="-1.5708" data-label="Col 1: F (Front)">F (Front)</button>
+        <button class="prime-btn" data-axis="z" data-layer="1" data-angle="1.5708" data-label="Col 1: F' (Front')">F' (Front')</button>
+
+        <button data-axis="z" data-layer="-1" data-angle="-1.5708" data-label="Col 1: B (Back)">B (Back)</button>
+        <button class="prime-btn" data-axis="z" data-layer="-1" data-angle="1.5708" data-label="Col 1: B' (Back')">B' (Back')</button>
+      </div>
+    </div>
+
+    <!-- COLUMN 2 -->
+    <div class="slice-section">
+      <div class="section-title">Column 2 (Middle Column)</div>
+      <div class="move-grid">
+        <button data-axis="x" data-layer="0" data-angle="-1.5708" data-label="Col 2: U (Up)">U (Up)</button>
+        <button data-axis="x" data-layer="0" data-angle="1.5708" data-label="Col 2: D (Down)">D (Down)</button>
+
+        <button data-axis="z" data-layer="1" data-angle="-1.5708" data-label="Col 2: F (Front)">F (Front)</button>
+        <button class="prime-btn" data-axis="z" data-layer="1" data-angle="1.5708" data-label="Col 2: F' (Front')">F' (Front')</button>
+
+        <button data-axis="z" data-layer="-1" data-angle="-1.5708" data-label="Col 2: B (Back)">B (Back)</button>
+        <button class="prime-btn" data-axis="z" data-layer="-1" data-angle="1.5708" data-label="Col 2: B' (Back')">B' (Back')</button>
+      </div>
+    </div>
+
+    <!-- COLUMN 3 -->
+    <div class="slice-section">
+      <div class="section-title">Column 3 (Right Column)</div>
+      <div class="move-grid">
+        <button data-axis="x" data-layer="1" data-angle="-1.5708" data-label="Col 3: U (Up)">U (Up)</button>
+        <button data-axis="x" data-layer="1" data-angle="1.5708" data-label="Col 3: D (Down)">D (Down)</button>
+
+        <button data-axis="z" data-layer="1" data-angle="-1.5708" data-label="Col 3: F (Front)">F (Front)</button>
+        <button class="prime-btn" data-axis="z" data-layer="1" data-angle="1.5708" data-label="Col 3: F' (Front')">F' (Front')</button>
+
+        <button data-axis="z" data-layer="-1" data-angle="-1.5708" data-label="Col 3: B (Back)">B (Back)</button>
+        <button class="prime-btn" data-axis="z" data-layer="-1" data-angle="1.5708" data-label="Col 3: B' (Back')">B' (Back')</button>
+      </div>
     </div>
 
     <div class="legend">
       <strong>Controls:</strong><br/>
       • <strong>Drag:</strong> Rotate 360° view<br/>
-      • <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>: Select column for <kbd>U</kbd> & <kbd>D</kbd><br/>
-      • Keys: <kbd>U</kbd> <kbd>D</kbd> <kbd>T</kbd> <kbd>F</kbd> <kbd>B</kbd> <kbd>R</kbd> <kbd>L</kbd> <kbd>M</kbd><br/>
-      • <kbd>Shift</kbd> + Key: Reverse direction (')<br/>
+      • <strong>Click</strong> any move button (hold <kbd>Shift</kbd> + Click to reverse)<br/>
       • <kbd>Space</kbd>: Scramble  |  <kbd>Esc</kbd>: Reset
     </div>
   </div>
@@ -203,7 +261,6 @@
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-    // Scene, Camera, Renderer
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
 
@@ -239,7 +296,7 @@
       ny: 0xfacc15, // Bottom/Down: Yellow
       pz: 0x16a34a, // Front: Green
       nz: 0x2563eb, // Back: Blue
-      core: 0x111317 // Black plastic interior
+      core: 0x111317
     };
 
     let cubies = [];
@@ -316,77 +373,11 @@
 
     buildCube();
 
-    // Active column (-1 = Col 1 Left, 0 = Col 2 Middle, 1 = Col 3 Right) for U and D
-    let activeCol = 1;
-    const COL_LABELS = { '-1': 'Col 1', '0': 'Col 2', '1': 'Col 3' };
-
-    document.querySelectorAll('.col-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        activeCol = Number(btn.dataset.col);
-        document.querySelectorAll('.col-btn').forEach(b => b.classList.remove('active-col'));
-        btn.classList.add('active-col');
-      });
-    });
-
-    // Move Definitions:
-    // - T / Bo / F default to moving right first (-Math.PI / 2)
-    // - B twists to the right first (-Math.PI / 2)
-    // - L and M twist toward the back first (-Math.PI / 2 around x)
-    // - R defaults to moving right-side slice (-Math.PI / 2)
-    const BASE_MOVES = {
-      T:   { axis: 'y', layer:  1, angle: -Math.PI / 2, label: 'T (Top →Right)' },
-      "T'": { axis: 'y', layer:  1, angle:  Math.PI / 2, label: "T' (Top →Left)" },
-      Bo:  { axis: 'y', layer: -1, angle: -Math.PI / 2, label: 'Bo (Row 3 →Right)' },
-      "Bo'":{ axis: 'y', layer: -1, angle:  Math.PI / 2, label: "Bo' (Row 3 →Left)" },
-      F:   { axis: 'z', layer:  1, angle: -Math.PI / 2, label: 'F (Front →Right)' },
-      "F'": { axis: 'z', layer:  1, angle:  Math.PI / 2, label: "F' (Front →Left)" },
-      B:   { axis: 'z', layer: -1, angle: -Math.PI / 2, label: 'B (Back →Right)' },
-      "B'": { axis: 'z', layer: -1, angle:  Math.PI / 2, label: "B' (Back →Left)" },
-      R:   { axis: 'x', layer:  1, angle: -Math.PI / 2, label: 'R (Right)' },
-      "R'": { axis: 'x', layer:  1, angle:  Math.PI / 2, label: "R' (Right')" },
-      L:   { axis: 'x', layer: -1, angle: -Math.PI / 2, label: 'L (Left →Back)' },
-      "L'": { axis: 'x', layer: -1, angle:  Math.PI / 2, label: "L' (Left →Front)" },
-      M:   { axis: 'x', layer:  0, angle: -Math.PI / 2, label: 'M (Mid →Back)' },
-      "M'": { axis: 'x', layer:  0, angle:  Math.PI / 2, label: "M' (Mid →Front)" }
-    };
-
     const moveQueue = [];
     let isAnimating = false;
     const historyList = [];
     const currentMoveEl = document.getElementById('current-move');
     const historyEl = document.getElementById('move-history');
-
-    function resolveMove(notation) {
-      const isPrime = notation.endsWith("'");
-      const base = isPrime ? notation.slice(0, -1) : notation;
-
-      if (base === 'U') {
-        const colName = COL_LABELS[String(activeCol)];
-        return {
-          axis: 'x',
-          layer: activeCol,
-          angle: isPrime ? Math.PI / 2 : -Math.PI / 2,
-          hudLabel: isPrime ? `U' (${colName} Down)` : `U (${colName} Up)`
-        };
-      }
-
-      if (base === 'D') {
-        const colName = COL_LABELS[String(activeCol)];
-        return {
-          axis: 'x',
-          layer: activeCol,
-          angle: isPrime ? -Math.PI / 2 : Math.PI / 2,
-          hudLabel: isPrime ? `D' (${colName} Up)` : `D (${colName} Down)`
-        };
-      }
-
-      const move = BASE_MOVES[notation];
-      if (!move) return null;
-      return {
-        ...move,
-        hudLabel: move.label
-      };
-    }
 
     function updateHUD(label) {
       currentMoveEl.textContent = label;
@@ -395,10 +386,8 @@
       historyEl.textContent = historyList.join(' • ');
     }
 
-    function enqueueMove(notation, customDuration = 220) {
-      const resolved = resolveMove(notation);
-      if (!resolved) return;
-      moveQueue.push({ resolved, duration: customDuration });
+    function enqueueTurn({ axis, layer, angle, hudLabel }, customDuration = 220) {
+      moveQueue.push({ axis, layer, angle, hudLabel, duration: customDuration });
       processQueue();
     }
 
@@ -406,8 +395,7 @@
       if (isAnimating || moveQueue.length === 0) return;
       isAnimating = true;
 
-      const { resolved, duration } = moveQueue.shift();
-      const { axis, layer, angle, hudLabel } = resolved;
+      const { axis, layer, angle, hudLabel, duration } = moveQueue.shift();
       updateHUD(hudLabel);
 
       const pivot = new THREE.Group();
@@ -456,10 +444,14 @@
     }
 
     function scrambleCube() {
-      const scramblePool = ['U', "U'", 'D', "D'", 'T', "T'", 'Bo', "Bo'", 'F', "F'", 'B', "B'", 'R', "R'", 'L', "L'", 'M', "M'"];
+      const axes = ['x', 'y', 'z'];
+      const layers = [-1, 0, 1];
+      const angles = [-Math.PI / 2, Math.PI / 2];
       for (let i = 0; i < 18; i++) {
-        const rand = scramblePool[Math.floor(Math.random() * scramblePool.length)];
-        enqueueMove(rand, 90);
+        const axis = axes[Math.floor(Math.random() * axes.length)];
+        const layer = layers[Math.floor(Math.random() * layers.length)];
+        const angle = angles[Math.floor(Math.random() * angles.length)];
+        enqueueTurn({ axis, layer, angle, hudLabel: 'Scramble' }, 90);
       }
     }
 
@@ -472,51 +464,39 @@
       buildCube();
     }
 
-    // Keyboard Bindings
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space') {
-        e.preventDefault();
-        scrambleCube();
-        return;
-      }
-      if (e.key === 'Escape') {
-        resetCube();
-        return;
-      }
-      if (['1', '2', '3'].includes(e.key)) {
-        const colMap = { '1': -1, '2': 0, '3': 1 };
-        activeCol = colMap[e.key];
-        document.querySelectorAll('.col-btn').forEach(btn => {
-          btn.classList.toggle('active-col', Number(btn.dataset.col) === activeCol);
-        });
-        return;
-      }
-
-      const key = e.key.toUpperCase();
-      if (['U', 'D', 'T', 'F', 'B', 'R', 'L', 'M'].includes(key)) {
-        const notation = e.shiftKey ? `${key}'` : key;
-        enqueueMove(notation);
-      }
+    // Section Move Buttons (Shift + Click reverses direction)
+    document.querySelectorAll('.slice-section button').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const axis = btn.dataset.axis;
+        const layer = Number(btn.dataset.layer);
+        const baseAngle = Number(btn.dataset.angle);
+        const angle = e.shiftKey ? -baseAngle : baseAngle;
+        const hudLabel = e.shiftKey ? `${btn.dataset.label} (Rev)` : btn.dataset.label;
+        enqueueTurn({ axis, layer, angle, hudLabel });
+      });
     });
 
-    // UI Buttons
-    document.querySelectorAll('[data-move]').forEach(btn => {
-      btn.addEventListener('click', () => enqueueMove(btn.dataset.move));
-    });
     document.getElementById('btn-scramble').addEventListener('click', scrambleCube);
     document.getElementById('btn-reset').addEventListener('click', resetCube);
     document.getElementById('btn-chroma').addEventListener('click', () => {
       document.body.classList.toggle('chroma-green');
     });
 
-    // Resize Handler
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        scrambleCube();
+      } else if (e.key === 'Escape') {
+        resetCube();
+      }
+    });
+
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // Render Loop
     function render() {
       requestAnimationFrame(render);
       controls.update();
